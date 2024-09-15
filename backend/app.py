@@ -73,6 +73,16 @@ def remove_todo():
     db.close()
     return {"status": 200}
 
+@app.route('/delete-all-todos', methods=['POST'])
+def delete_all_todos():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM groceries;")
+    db.commit()
+    cursor.close()
+    db.close()
+    return {"status": 200, "message": "All tasks deleted successfully"}
+
 @app.route('/')
 def ping_server():
     return "Welcome to the API of TODO List app."
