@@ -16,7 +16,6 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
 
-    # Add this line to pass the database URI to Alembic
     app.config['ALEMBIC'] = {
         'sqlalchemy.url': app.config['SQLALCHEMY_DATABASE_URI']
     }
