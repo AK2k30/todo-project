@@ -6,19 +6,20 @@ import axios from 'axios';
 function TodoList() {
   const [todos, setTodos] = useState([]);
 
-  const publishLatest = () => {
-    axios.get('https://grocery-todo-backend.onrender.com/get-todos')
-    .then(function (response) {
-      console.log(response.data.data);
-      setTodos(response.data.data);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+  const API_BASE_URL = 'https://flask-backend-0ydk.onrender.com/';
+
+  const fetchTasks = () => {
+    axios.get(`${API_BASE_URL}/tasks`)
+      .then(response => {
+        setTodos(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching tasks:', error);
+      });
   }
 
   useEffect(() => {
-    publishLatest();
+    fetchTasks();
   }, [])
 
   const addTodo = todo => {
@@ -26,20 +27,13 @@ function TodoList() {
       return;
     }
 
-    var bodyFormData = new FormData();
-    bodyFormData.append('item_name', todo.text);
-    axios({
-      method: "post",
-      url: "https://grocery-todo-backend.onrender.com/add-todo",
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then(function (response) {
-        console.log(response);
-        publishLatest();
+    axios.post(`${API_BASE_URL}/tasks`, { name: todo.text })
+      .then(response => {
+        console.log(response.data);
+        fetchTasks();
       })
-      .catch(function (response) {
-        console.log(response);
+      .catch(error => {
+        console.error('Error adding task:', error);
       });
   };
 
@@ -48,44 +42,36 @@ function TodoList() {
       return;
     }
 
-    var bodyFormData = new FormData();
-    bodyFormData.append('item_id', todoId);
-    bodyFormData.append('item_name', newValue.text);
-    axios({
-      method: "post",
-      url: "https://grocery-todo-backend.onrender.com/update-todo",
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then(function (response) {
-        console.log(response);
-        publishLatest();
+    axios.put(`${API_BASE_URL}/tasks/${todoId}`, { name: newValue.text })
+      .then(response => {
+        console.log(response.data);
+        fetchTasks();
       })
-      .catch(function (response) {
-        console.log(response);
+      .catch(error => {
+        console.error('Error updating task:', error);
       });
   };
 
   const removeTodo = id => {
-    var bodyFormData = new FormData();
-    bodyFormData.append('item_id', id);
-    axios({
-      method: "post",
-      url: "https://grocery-todo-backend.onrender.com/remove-todo",
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then(function (response) {
-        console.log(response);
-        publishLatest();
+    axios.delete(`${API_BASE_URL}/tasks/${id}`)
+      .then(response => {
+        console.log('Task deleted');
+        fetchTasks();
       })
-      .catch(function (response) {
-        console.log(response);
+      .catch(error => {
+        console.error('Error deleting task:', error);
       });
   };
 
   const removeAllTodos = () => {
-    setTodos([]);
+    axios.delete(`${API_BASE_URL}/tasks`)
+      .then(response => {
+        console.log('All tasks deleted');
+        fetchTasks();
+      })
+      .catch(error => {
+        console.error('Error deleting all tasks:', error);
+      });
   };
 
   return (
